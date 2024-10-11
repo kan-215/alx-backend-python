@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Define dvariables"""
+"""define and annotate the following variables with the specified values:"""
 
 
 a: int = 1
