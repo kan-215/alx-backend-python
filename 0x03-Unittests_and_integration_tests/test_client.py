@@ -2,28 +2,28 @@
 """The Module tests for client """
 
 import unittest
-from unittest.mock import patch, PropertyMock, Mock
+from unittest.mock import patch, PropertyMock
 from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from fixtures import TEST_PAYLOAD
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """ tests for Github Org Client """
+    """ Tests for Github Org Client """
 
     @parameterized.expand([
         ("google",),
         ("abc",)
     ])
     @patch('client.get_json')
-    def test_org(self, input, mock_get_json):
+    def test_org(self, org_name, mock_get_json):
         """Ensures GithubOrgClient.org returns the correct output"""
-        test_class = GithubOrgClient(input)
+        test_class = GithubOrgClient(org_name)
         test_class.org
-        mock_get_json.assert_called_once_with(f'https://api.github.com/orgs/{input}')
+        mock_get_json.assert_called_once_with(f'https://api.github.com/orgs/{org_name}')
 
     def test_public_repos_url(self):
-        """ensures public_repos_url returns the expected URL"""
+        """Ensures _public_repos_url returns the expected URL"""
         with patch('client.GithubOrgClient.org', new_callable=PropertyMock) as mock_org:
             payload = {"repos_url": "https://api.github.com/orgs/test/repos"}
             mock_org.return_value = payload
@@ -52,7 +52,7 @@ class TestGithubOrgClient(unittest.TestCase):
         ({"license": {"key": "other_license"}}, "my_license", False)
     ])
     def test_has_license(self, repo, license_key, expected):
-        """Tests for_license method"""
+        """Tests has_license method"""
         result = GithubOrgClient.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
@@ -62,7 +62,7 @@ class TestGithubOrgClient(unittest.TestCase):
     TEST_PAYLOAD
 )
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """ Integrates Testing with fixtures"""
+    """ Integration Testing with fixtures"""
 
     @classmethod
     def setUpClass(cls):
@@ -72,7 +72,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.mock_get = cls.get_patcher.start()
 
     def test_public_repos(self):
-        """tests public_repos integration"""
+        """Tests public_repos integration without license filtering"""
         test_class = GithubOrgClient("google")
         self.assertEqual(test_class.org, self.org_payload)
         self.assertEqual(test_class.public_repos(), self.expected_repos)
